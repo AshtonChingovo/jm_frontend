@@ -1,0 +1,17 @@
+<div class="min-h-screen bg-gray-50 text-gray-900">
+  <nav class="border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <div class="mx-auto max-w-7xl px-6">
+      <div class="flex h-14 items-center justify-between">
+        <a routerLink="/" class="text-lg font-semibold">Meetups</a>
+        <div class="flex items-center gap-6 text-sm">
+          <a routerLink="/" routerLinkActive="text-blue-600" class="hover:text-blue-600">Home</a>
+          <a routerLink="/past-meetups" routerLinkActive="text-blue-600" class="hover:text-blue-600">Past Meetups</a>
+          <a routerLink="/signin" routerLinkActive="text-blue-600" class="hover:text-blue-600">SignIn</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main class="mx-auto max-w-7xl p-6">
+    <router-outlet />
+  </main>
+</div>
