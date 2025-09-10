@@ -1,0 +1,171 @@
+/* Form input transitions and focus states */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Error state styling */
+input.error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Button hover and active states */
+.auth-toggle-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.auth-toggle-button.active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.auth-submit-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.auth-submit-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.auth-submit-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Form container animations */
+.form-container {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Fade in animation for form fields */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+  transition: all 0.2s ease-in-out;
+}
+
+input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Link hover effects */
+a,
+button[type="button"] {
+  transition: color 0.2s ease-in-out;
+}
+
+/* Card shadow transitions */
+.auth-card {
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.auth-card:hover {
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Error message slide in */
+.error-message {
+  animation: slideInDown 0.3s ease-out;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Success state styling */
+.success-border {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Disabled state styling */
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .auth-container {
+    padding: 1rem;
+  }
+  
+  .auth-form {
+    padding: 1.5rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    border-width: 2px;
+  }
+  
+  .auth-toggle-button.active {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .auth-submit-button:hover:not(:disabled),
+  .auth-toggle-button.active {
+    transform: none;
+  }
+}
