@@ -1,0 +1,81 @@
+<div class="grid grid-cols-1 gap-8 lg:grid-cols-2 items-center justify-center min-h-[calc(100vh-200px)]">
+  <!-- Left Section: QR Code and Meetup Info -->
+  <div class="flex flex-col items-center justify-center space-y-6 text-center">
+    <div>
+      <h2 class="text-4xl font-semibold tracking-tight">{{ meetupInfo().title }}</h2>
+      <p class="text-gray-600 mt-2">Host: {{ meetupInfo().host }}</p>
+    </div>
+
+    <div class="flex flex-col items-center">
+      @if (qrDataUrl()) {
+        <img
+          [src]="qrDataUrl()!"
+          [alt]="'QR code for ' + meetupInfo().title"
+          class="h-96 w-96 rounded-md border border-gray-200 bg-white p-4 shadow-lg qr-code-container"
+        />
+      } @else {
+        <div class="h-96 w-96 rounded-md border border-gray-200 bg-gray-50 p-4 shadow-lg flex items-center justify-center">
+          <div class="text-center text-gray-500">
+            <svg class="mx-auto h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p>Generating QR Code...</p>
+          </div>
+        </div>
+      }
+      <div class="mt-6 text-center text-sm text-gray-600 max-w-xs">
+        <p class="font-medium">Scan the QR code to check in.</p>
+        <p class="mt-2">Point your phone camera at the code to get the check-in link.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Section: Attendance Chart -->
+  <div class="flex items-center justify-center">
+    <div class="rounded-lg border border-gray-200 bg-white p-8 shadow-sm w-full max-w-md attendance-card">
+      <h3 class="text-xl font-semibold text-gray-900 mb-6 text-center">Attendance</h3>
+      
+      <!-- Total Attendees Display -->
+      <div class="text-center mb-8">
+        <div class="text-5xl font-bold text-gray-900">{{ attendanceData().total }}</div>
+        <div class="text-base text-gray-500">Total attendees</div>
+      </div>
+
+      <!-- CSS Pie Chart Container -->
+      <div class="flex justify-center mb-8">
+        <div class="relative w-56 h-56 pie-chart-container">
+          <!-- Pie Chart using CSS conic-gradient -->
+          <div 
+            class="w-full h-full rounded-full border-4 border-gray-100 shadow-sm"
+            [style.background]="pieChartGradient()"
+          ></div>
+          <!-- Center circle to create donut effect -->
+          <div class="absolute inset-8 bg-white rounded-full flex items-center justify-center shadow-inner">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-gray-900">{{ attendanceData().total }}</div>
+              <div class="text-sm text-gray-500">Total</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend with Numbers -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div class="flex items-center gap-3">
+            <div class="w-5 h-5 bg-emerald-500 rounded-full shadow-sm"></div>
+            <span class="text-base font-medium text-gray-700">New</span>
+          </div>
+          <span class="text-xl font-semibold text-emerald-600">{{ attendanceData().newRegistrations }}</span>
+        </div>
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div class="flex items-center gap-3">
+            <div class="w-5 h-5 bg-blue-500 rounded-full shadow-sm"></div>
+            <span class="text-base font-medium text-gray-700">Returning</span>
+          </div>
+          <span class="text-xl font-semibold text-blue-600">{{ attendanceData().returningMembers }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

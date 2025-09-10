@@ -1,80 +1,159 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, inject, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { from } from 'rxjs';
+
+/**
+ * Interface representing attendance data structure
+ */
+interface AttendanceData {
+  readonly newRegistrations: number;
+  readonly returningMembers: number;
+  readonly total: number;
+}
+
+/**
+ * Interface representing meetup information
+ */
+interface MeetupInfo {
+  readonly title: string;
+  readonly host: string;
+  readonly number: number;
+}
+
+/**
+ * Interface for QR code generation options
+ */
+interface QrCodeOptions {
+  readonly width: number;
+  readonly margin: number;
+  readonly color: {
+    readonly dark: string;
+    readonly light: string;
+  };
+  readonly errorCorrectionLevel: 'L' | 'M' | 'Q' | 'H';
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  template: `
-    <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-      <div class="md:col-span-2 space-y-6">
-        <div>
-          <h2 class="text-4xl font-semibold tracking-tight">Java Meetup #23</h2>
-          <p class="text-gray-600">Host: John Doe</p>
-        </div>
-
-        <div class="flex items-start gap-8">
-          <div class="flex flex-col items-center">
-            @if (qrDataUrl()) {
-              <img
-                [src]="qrDataUrl()!"
-                alt="QR code for Java Meetup #23"
-                class="h-[24rem] w-[24rem] rounded-md border border-gray-200 bg-white p-4 shadow"
-              />
-            }
-            <div class="mt-4 text-center text-sm text-gray-600">
-              <p>Scan the QR code to check in.</p>
-              <p class="mt-2">Point your phone camera at the code to get the check-in link.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <aside class="md:col-span-1">
-        <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <h3 class="text-base font-semibold text-gray-900">Attendance</h3>
-          <div class="mt-4 grid grid-cols-3 gap-4">
-            <div class="col-span-3">
-              <div class="text-4xl font-bold text-gray-900">{{ total() }}</div>
-              <div class="text-xs text-gray-500">Total attendees</div>
-            </div>
-            <div class="col-span-1">
-              <div class="text-xl font-semibold text-gray-900">{{ newRegistrations() }}</div>
-              <div class="text-xs text-gray-500">New</div>
-            </div>
-            <div class="col-span-1">
-              <div class="text-xl font-semibold text-gray-900">{{ returningMembers() }}</div>
-              <div class="text-xs text-gray-500">Returning</div>
-            </div>
-          </div>
-        </div>
-      </aside>
-    </div>
-  `,
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.css',
 })
 export class HomeComponent {
+  private readonly destroyRef = inject(DestroyRef);
+
+  // Reactive state management with signals
   readonly qrDataUrl = signal<string | null>(null);
-  readonly newRegistrations = signal<number>(32);
-  readonly returningMembers = signal<number>(96);
-  readonly total = signal<number>(this.newRegistrations() + this.returningMembers());
+  readonly isLoadingQr = signal<boolean>(true);
+
+  // Meetup configuration
+  readonly meetupInfo = signal<MeetupInfo>({
+    title: 'Java Meetup #23',
+    host: 'John Doe',
+    number: 23,
+  });
+
+  // Private attendance signals
+  private readonly newRegistrations = signal<number>(32);
+  private readonly returningMembers = signal<number>(96);
+
+  // Computed attendance data
+  readonly attendanceData = computed<AttendanceData>(() => ({
+    newRegistrations: this.newRegistrations(),
+    returningMembers: this.returningMembers(),
+    total: this.newRegistrations() + this.returningMembers(),
+  }));
+
+  // Computed pie chart gradient with error handling
+  readonly pieChartGradient = computed(() => {
+    const data = this.attendanceData();
+    
+    if (data.total === 0) {
+      return 'conic-gradient(#e5e7eb 0deg 360deg)';
+    }
+    
+    const newPercentage = (data.newRegistrations / data.total) * 100;
+    const newAngle = Math.round((newPercentage / 100) * 360);
+    
+    return `conic-gradient(#10b981 0deg ${newAngle}deg, #3b82f6 ${newAngle}deg 360deg)`;
+  });
 
   constructor() {
-    // Lazy-import to avoid SSR/node issues and keep bundle small.
-    this.generateQr();
+    this.initializeComponent();
   }
 
-  private async generateQr(): Promise<void> {
+  /**
+   * Initialize component lifecycle and start QR code generation
+   */
+  private initializeComponent(): void {
+    this.generateQrCode()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+  }
+
+  /**
+   * Generate QR code observable for reactive handling
+   */
+  private generateQrCode() {
+    return from(this.createQrCode());
+  }
+
+  /**
+   * Create QR code with proper error handling and loading states
+   */
+  private async createQrCode(): Promise<void> {
     try {
+      this.isLoadingQr.set(true);
+      
+      // Dynamic import to avoid SSR issues and optimize bundle size
       const { toDataURL } = await import('qrcode');
+      
+      const meetup = this.meetupInfo();
+      const qrOptions: QrCodeOptions = {
+        width: 640,
+        margin: 2,
+        color: {
+          dark: '#1f2937', // gray-800
+          light: '#ffffff'
+        },
+        errorCorrectionLevel: 'M'
+      };
+      
       const payload = JSON.stringify({
-        meetup: 'Java Meetup #23',
-        host: 'John Doe',
+        meetupTitle: meetup.title,
+        meetupNumber: meetup.number,
+        host: meetup.host,
         type: 'checkin',
+        timestamp: new Date().toISOString(),
+        checkInUrl: `${window.location.origin}/checkin/${meetup.number}`
       });
-      const url = await toDataURL(payload, { width: 640, margin: 1 });
-      this.qrDataUrl.set(url);
-    } catch (err) {
-      console.error('Failed generating QR:', err);
+      
+      const qrCodeUrl = await toDataURL(payload, qrOptions);
+      this.qrDataUrl.set(qrCodeUrl);
+    } catch (error) {
+      console.error('Failed to generate QR code:', error);
       this.qrDataUrl.set(null);
+    } finally {
+      this.isLoadingQr.set(false);
     }
+  }
+
+  /**
+   * Update attendance data with validation
+   * @param newRegistrations - Number of new registrations
+   * @param returningMembers - Number of returning members
+   */
+  updateAttendanceData(newRegistrations: number, returningMembers: number): void {
+    this.newRegistrations.set(Math.max(0, newRegistrations));
+    this.returningMembers.set(Math.max(0, returningMembers));
+  }
+
+  /**
+   * Update meetup information
+   * @param meetupInfo - Partial meetup information to update
+   */
+  updateMeetupInfo(meetupInfo: Partial<MeetupInfo>): void {
+    this.meetupInfo.update(current => ({ ...current, ...meetupInfo }));
   }
 }
 

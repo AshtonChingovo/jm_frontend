@@ -1,0 +1,110 @@
+.meetup-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.meetup-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.pie-chart-container {
+  transition: transform 0.2s ease-in-out;
+}
+
+.pie-chart-container:hover {
+  transform: scale(1.02);
+}
+
+.attendance-chart-card {
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.attendance-chart-card:hover {
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.empty-state {
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Progress bar animations */
+.progress-bar {
+  transition: width 0.4s ease-in-out;
+}
+
+/* Focus styles for better accessibility */
+input:focus,
+select:focus,
+button:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar for overflow content */
+.description-content {
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.description-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.description-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 2px;
+}
+
+.description-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.description-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Loading state for search inputs */
+input[type="text"]:invalid {
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+/* Accessibility: Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .meetup-card,
+  .pie-chart-container,
+  .attendance-chart-card,
+  .empty-state,
+  .progress-bar,
+  input,
+  select,
+  button {
+    transition: none;
+    animation: none;
+  }
+  
+  .meetup-card:hover,
+  .pie-chart-container:hover {
+    transform: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .pagination,
+  .search-filters {
+    display: none;
+  }
+  
+  .meetup-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+}

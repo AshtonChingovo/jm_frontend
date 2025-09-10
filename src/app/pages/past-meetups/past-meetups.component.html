@@ -1,0 +1,213 @@
+<div>
+  <h2 class="text-2xl font-semibold tracking-tight mb-6">Past Meetups</h2>
+  
+  <!-- Search and Filter Section -->
+  <div class="mb-6 space-y-4">
+    <div class="flex flex-col sm:flex-row gap-4">
+      <!-- Search Input -->
+      <div class="flex-1">
+        <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Meetups</label>
+        <input
+          id="search"
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search by title, presenter..."
+          class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+        />
+      </div>
+      
+      <!-- Date Filter -->
+      <div class="sm:w-48">
+        <label for="dateFilter" class="block text-sm font-medium text-gray-700 mb-2">Filter by Date</label>
+        <select
+          id="dateFilter"
+          [(ngModel)]="dateFilter"
+          class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+        >
+          <option value="all">All Dates</option>
+          <option value="lastMonth">Last Month</option>
+          <option value="last3Months">Last 3 Months</option>
+          <option value="last6Months">Last 6 Months</option>
+          <option value="thisYear">This Year</option>
+        </select>
+      </div>
+      
+      <!-- Attendance Filter -->
+      <div class="sm:w-48">
+        <label for="attendanceFilter" class="block text-sm font-medium text-gray-700 mb-2">Attendance</label>
+        <select
+          id="attendanceFilter"
+          [(ngModel)]="attendanceFilter"
+          class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+        >
+          <option value="all">All</option>
+          <option value="low">Low (< 20)</option>
+          <option value="medium">Medium (20-50)</option>
+          <option value="high">High (> 50)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Count -->
+  <div class="mb-4 text-sm text-gray-600">
+    Showing {{ paginatedMeetups().length }} of {{ filteredMeetups().length }} meetups
+  </div>
+
+  <!-- Meetups List -->
+  <div class="space-y-4 mb-8">
+    @for (meetup of paginatedMeetups(); track meetup.id) {
+      <article class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 meetup-card">
+        <div class="p-6">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            
+            <!-- Left Section: Presenter and Title -->
+            <div class="flex-1">
+              <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-gray-500">Presenter:</span>
+                  <span class="text-sm font-semibold text-gray-900">{{ meetup.presenter }}</span>
+                </div>
+                <h3 class="text-base font-bold text-blue-900">{{ meetup.title }}</h3>
+                <p class="text-sm text-gray-500">{{ meetup.date | date:'fullDate' }}</p>
+                <div class="mt-3 p-3 bg-blue-50 rounded-md border-l-4 border-blue-200">
+                  <p class="text-sm text-gray-700 leading-relaxed">{{ meetup.description }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vertical Separator -->
+            <div class="hidden lg:block w-px h-24 bg-gray-200"></div>
+
+            <!-- Right Section: Attendance Stats -->
+            <div class="lg:w-64">
+              <div class="p-4 attendance-chart-card">
+                <h4 class="text-sm text-gray-900 mb-3 text-center">Attendance</h4>
+
+                <!-- CSS Pie Chart Container with Legend -->
+                <div class="flex items-center justify-center gap-4">
+                  <div class="relative w-28 h-28 pie-chart-container">
+                    <!-- Pie Chart using CSS conic-gradient -->
+                    <div 
+                      class="w-full h-full rounded-full border-3 border-gray-100 shadow-sm"
+                      [style.background]="getPieChartGradient(meetup)"
+                    ></div>
+                    <!-- Center circle to create donut effect -->
+                    <div class="absolute inset-4 bg-white rounded-full flex items-center justify-center shadow-inner">
+                      <div class="text-center">
+                        <div class="text-lg font-bold text-gray-900">{{ meetup.totalAttendance }}</div>
+                        <div class="text-xs text-gray-500">Total</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Legend with Numbers -->
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center gap-1 p-1 bg-gray-50 rounded-md">
+                      <span class="text-xs font-medium text-gray-700">New</span>
+                      <span class="text-sm font-semibold text-emerald-600">{{ meetup.newRegistrations }}</span>
+                    </div>
+                    <div class="flex items-center gap-1 p-1 bg-gray-50 rounded-md">
+                      <span class="text-xs font-medium text-gray-700">Returning</span>
+                      <span class="text-sm font-semibold text-blue-600">{{ meetup.regularAttendees }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    } @empty {
+      <div class="text-center py-12 empty-state">
+        <div class="text-gray-400 mb-2">
+          <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </div>
+        <p class="text-gray-500">No meetups found matching your criteria.</p>
+        <p class="text-sm text-gray-400 mt-2">Try adjusting your search or filter settings.</p>
+      </div>
+    }
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+    <!-- Mobile Pagination -->
+    <div class="flex flex-1 justify-between sm:hidden">
+      <button
+        (click)="previousPage()"
+        [disabled]="currentPage() === 1"
+        class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+        [attr.aria-label]="'Go to previous page'"
+      >
+        Previous
+      </button>
+      <button
+        (click)="nextPage()"
+        [disabled]="currentPage() === totalPages()"
+        class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+        [attr.aria-label]="'Go to next page'"
+      >
+        Next
+      </button>
+    </div>
+    
+    <!-- Desktop Pagination -->
+    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+      <div>
+        <p class="text-sm text-gray-700">
+          Showing
+          <span class="font-medium">{{ startIndex() + 1 }}</span>
+          to
+          <span class="font-medium">{{ Math.min(startIndex() + itemsPerPage(), filteredMeetups().length) }}</span>
+          of
+          <span class="font-medium">{{ filteredMeetups().length }}</span>
+          results
+        </p>
+      </div>
+      
+      <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+        <!-- Previous Button -->
+        <button
+          (click)="previousPage()"
+          [disabled]="currentPage() === 1"
+          class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+          [attr.aria-label]="'Go to previous page'"
+        >
+          <span class="sr-only">Previous</span>
+          <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+          </svg>
+        </button>
+        
+        <!-- Page Numbers -->
+        @for (page of getPageNumbers(); track page) {
+          <button
+            (click)="goToPage(page)"
+            [class]="page === currentPage() 
+              ? 'relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors duration-200'
+              : 'relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 transition-colors duration-200'"
+            [attr.aria-label]="'Go to page ' + page"
+            [attr.aria-current]="page === currentPage() ? 'page' : null"
+          >
+            {{ page }}
+          </button>
+        }
+        
+        <!-- Next Button -->
+        <button
+          (click)="nextPage()"
+          [disabled]="currentPage() === totalPages()"
+          class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+          [attr.aria-label]="'Go to next page'"
+        >
+          <span class="sr-only">Next</span>
+          <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </div>
+</div>
